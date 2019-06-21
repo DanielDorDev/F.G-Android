@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -16,14 +17,12 @@ public class MainActivity extends AppCompatActivity {
     }
     public void buttonConnect(View view) {
 
-        EditText ip =
-                (EditText)findViewById(R.id.editIP);
-        EditText port =
-                (EditText)findViewById(R.id.editPort);
+        TextView ip = findViewById(R.id.editIP);
+        TextView port = findViewById(R.id.editPort);
         Intent intent = new Intent(this,
                 ConnectActivity.class);
-        intent.putExtra("ip", String.valueOf(ip));
-        intent.putExtra("port", String.valueOf(port));
+        intent.putExtra("ip", String.valueOf(ip.getText()));
+        intent.putExtra("port", String.valueOf(port.getText()));
         startActivity(intent);
     }
 

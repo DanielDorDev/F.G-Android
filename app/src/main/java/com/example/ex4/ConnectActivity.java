@@ -4,16 +4,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 public class ConnectActivity extends AppCompatActivity {
-    TcpClient clientFlight = TcpClient.getInstance();
+    TcpClient clientFlight;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        clientFlight = TcpClient.getInstance();
         Intent intent = getIntent();
         clientFlight.startClient(intent.getStringExtra("ip"),
-                Integer.valueOf(intent.getStringExtra("port")));
+                Integer.valueOf( intent.getStringExtra("port")));
+
+
 
     }
 

@@ -46,6 +46,9 @@ public class TcpClient {
     void startClient(String server_IP, int server_Port) {
         stopClient = true;
         try {
+
+
+
             mBufferOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
                     new Socket(InetAddress.getByName(server_IP), server_Port).getOutputStream())),
                     true);
