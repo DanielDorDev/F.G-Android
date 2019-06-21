@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         EditText port =
                 (EditText)findViewById(R.id.editPort);
         Intent intent = new Intent(this,
-                Joystick.class);
+                ConnectActivity.class);
         intent.putExtra("ip", String.valueOf(ip));
         intent.putExtra("port", String.valueOf(port));
         startActivity(intent);
