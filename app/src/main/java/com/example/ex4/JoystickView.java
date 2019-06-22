@@ -10,12 +10,22 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+// View for joystick.
 public class JoystickView extends View {
 
+    // Paint for surface(handle is inside surface and move there) and handle.
     private Paint surfacePaint, handlePaint;
+
+    // Handle width and height.
     private double handleX, handleY;
+
+    // Middle screen, surface circle positioned there.
     private Point mid = new Point();
+
+    // Handle radius, sensitivity(float .xf), surface radius.
     private int handleRadius, sensitivity, surfaceRadius;
+
+    // Observer to joystick movement.
     private JoystickListener listener;
 
     // Constructors for joystick view.
@@ -76,13 +86,13 @@ public class JoystickView extends View {
         setMeasuredDimension(measuredWidth, measuredHeight);
     }
 
-    // Default size.
+    // Screen size (after change occur).
     private int measure(int measureSpec) {
         return MeasureSpec.getMode(measureSpec) ==
                 MeasureSpec.UNSPECIFIED ? 200 : MeasureSpec.getSize(measureSpec);
     }
 
-    // Check if movement is inside circle.
+    // Check if user position is inside circle.
     Boolean insideCircle(float x, float y) {
         double distance = Math.sqrt((mid.x - x) * (mid.x - x) + (mid.y - y)
                 * (mid.y - y));
@@ -106,10 +116,12 @@ public class JoystickView extends View {
         canvas.save();
     }
 
+    // User touch the screen.
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int userAction = event.getAction();
 
+        // If action type is move.
         if (userAction == MotionEvent.ACTION_MOVE) {
 
             if (insideCircle(event.getX(), event.getY())) {
@@ -126,17 +138,22 @@ public class JoystickView extends View {
                         Math.ceil((handleY / surfaceRadius) * sensitivity) / sensitivity);
             }
             invalidate();
+            // If action type is up(release).
         } else if (userAction == MotionEvent.ACTION_UP) {
+
+            // Move Joystick back to center, with interval movement.
             Handler handler = new Handler();
-            int frameRate = 5;
+            int frameRate = 5;  // Speed of movement back to center.
             final double intervalsX = (0 - handleX) / frameRate;
             final double intervalsY = (0 - handleY) / frameRate;
 
+            // Every time move a bit more to the center, until reached.
             for (int i = 0; i < frameRate; i++) {
                 handler.postDelayed(() -> {
                     handleX += intervalsX;
                     handleY += intervalsY;
                     invalidate();
+                    // Interval become bigger when approach to center(add mechanical touch).
                 }, i * 40);
             }
         }

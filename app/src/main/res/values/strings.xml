@@ -2,8 +2,8 @@
     <string name="app_name">Ex4</string>
     <string name="Text_IP">IP:</string>
     <string name="Text_Port">Port:</string>
+    <string name="Hint_IP">Enter IP</string>
+    <string name="Hint_Port">Enter Port</string>
     <string name="Text_Connect">Connect</string>
-    <string name="Connection_Port">"5402"</string>
-    <string name="Connection_IP">"10.0.2.2"</string>
 
 </resources>
