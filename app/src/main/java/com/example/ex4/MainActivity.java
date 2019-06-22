@@ -1,14 +1,9 @@
 package com.example.ex4;
 
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -30,14 +25,14 @@ public class MainActivity extends AppCompatActivity {
         ConnectTask taskServer = new ConnectTask();
         taskServer.execute(ip, port, null);
         JoystickView joystickView = new JoystickView(this);
-        joystickView.setOnJostickMovedListener(new JoystickListener() {
+        joystickView.setJoystickListener(new JoystickListener() {
             @Override
             public void OnMoved(int pan, int tilt) {
 
                 try {
                     mTcpClient.sendMessage("set /controls/flight/aileron " +
-                            Integer.valueOf(pan).toString() + "set /controls/flight/elevator "  +
-                            Integer.valueOf(tilt).toString()  );
+                            Integer.valueOf(pan).toString() + "set /controls/flight/elevator " +
+                            Integer.valueOf(tilt).toString() + "\r\n");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

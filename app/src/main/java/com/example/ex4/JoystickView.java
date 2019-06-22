@@ -56,7 +56,7 @@ public class JoystickView extends View {
     }
 
 
-    public void setOnJostickMovedListener(JoystickListener listener) {
+    public void setJoystickListener(JoystickListener listener) {
         this.listener = listener;
     }
 

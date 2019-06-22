@@ -132,11 +132,11 @@ public class TcpClient {
 
 public class TcpClient {
     private static TcpClient ourInstance = null;
-    private boolean stopClient = false;
+    private boolean stopClient = true;
     private PrintWriter mBufferOut;
     private BlockingQueue<Runnable> dispatchQueue
             = new LinkedBlockingQueue<>();
-
+    
     static TcpClient getInstance() {
         if (ourInstance != null) {
             return ourInstance;
@@ -156,7 +156,7 @@ public class TcpClient {
     }
 
     void stopClient() {
-        stopClient = false;
+        stopClient = true;
         if (mBufferOut != null) {
             mBufferOut.flush();
             mBufferOut.close();
@@ -173,7 +173,7 @@ public class TcpClient {
             mBufferOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
 
 
-            stopClient = true;
+            stopClient = false;
 
            // new Thread(() -> {
             while (!stopClient || !dispatchQueue.isEmpty()) {
@@ -185,7 +185,7 @@ public class TcpClient {
        //     }).start();
 
         } catch (Exception e) {
-            stopClient = false;
+            stopClient = true;
 
         }
 
