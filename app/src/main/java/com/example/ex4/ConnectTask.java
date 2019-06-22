@@ -24,6 +24,7 @@ public class ConnectTask extends AsyncTask<String, Void, TcpClient> {
 
     // If Cancelled try to stop the client (could be used to notify changes at progress).
     @Override
+    // When ConnectTask cancelled.
     protected void onCancelled() {
         super.onCancelled();
         TcpClient.getInstance().stopClient();
