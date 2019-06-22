@@ -1,6 +1,4 @@
-
 package com.example.ex4;
-
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
