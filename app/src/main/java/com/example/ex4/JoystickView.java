@@ -12,8 +12,8 @@ import android.view.View;
 public class JoystickView extends View {
 
     private Paint surfacePaint, handlePaint;
-    private double handleX, handleY;
-    private int innerPadding, handleRadius, sensitivity, handleInnerBoundaries;
+    private double handleX, handleY, radiusRatio;
+    private int handleRadius, sensitivity, handleInnerBoundaries;
     private JoystickListener listener;
 
     // Constructors for joystick view.
@@ -39,15 +39,15 @@ public class JoystickView extends View {
 
         surfacePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         surfacePaint.setColor(Color.GRAY);
-        surfacePaint.setStrokeWidth(2);
+        surfacePaint.setStrokeWidth(5);
         surfacePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         handlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         handlePaint.setColor(Color.DKGRAY);
-        handlePaint.setStrokeWidth(2);
+        handlePaint.setStrokeWidth(5);
         handlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
-        innerPadding = 5;
+        radiusRatio =  0.7;
         sensitivity = 100;
     }
 
@@ -87,17 +87,18 @@ public class JoystickView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        int px = getMeasuredWidth() / 2;
-        int py = getMeasuredHeight() / 2;
-        int radius = Math.min(px, py);
 
-        // Draw the background
-        canvas.drawCircle(px, py, radius - innerPadding, surfacePaint);
+        // Calculate middle, set radius (restricted to radius ratio)
+        int middleX = getMeasuredWidth() / 2;
+        int middleY = getMeasuredHeight() / 2;
+        int radius = Double.valueOf(Math.min(middleX, middleY) * radiusRatio).intValue();
+
+        // Draw the surface
+        canvas.drawCircle(middleX, middleY, radius , surfacePaint);
 
         // Draw the handle
-        canvas.drawCircle((int) handleX + px, (int) handleY + py,
+        canvas.drawCircle((int) handleX + middleX, (int) handleY + middleY,
                 handleRadius, handlePaint);
-
         canvas.save();
     }
 
