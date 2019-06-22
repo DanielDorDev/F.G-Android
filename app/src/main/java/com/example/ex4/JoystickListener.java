@@ -1,9 +1,6 @@
 package com.example.ex4;
 
+// Listen to joystick movement.
 public interface JoystickListener {
-
-    void OnMoved(int pan, int tilt);
-
-    void OnReleased();
-
+    void OnMoved(int aileron, int elevator);
 }

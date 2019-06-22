@@ -20,7 +20,7 @@ public class JoystickView extends View {
     private JoystickListener listener;
     private int sensitivity;
 
-
+    // Constructors for joystick view.
     public JoystickView(Context context) {
         super (context);
         initJoystickView();
@@ -55,10 +55,11 @@ public class JoystickView extends View {
         sensitivity = 10;
     }
 
-
+    // Set listener to joystick, in this exercise one is enough.
     public void setJoystickListener(JoystickListener listener) {
         this.listener = listener;
     }
+
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -75,7 +76,6 @@ public class JoystickView extends View {
 
     private int measure(int measureSpec) {
         int result = 0;
-        // Decode the measurement specifications.
         int specMode = MeasureSpec.getMode(measureSpec);
         int specSize = MeasureSpec.getSize(measureSpec);
         if (specMode == MeasureSpec.UNSPECIFIED) {
@@ -147,10 +147,6 @@ public class JoystickView extends View {
                 touchY += intervalsY;
                 invalidate();
             }, i * 40);
-        }
-
-        if (listener != null) {
-            listener.OnReleased();
         }
     }
 }

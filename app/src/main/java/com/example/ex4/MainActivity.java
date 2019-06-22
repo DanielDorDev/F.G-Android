@@ -7,44 +7,52 @@ import android.widget.TextView;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    // Instance for local use.
     TcpClient mTcpClient;
 
+    // On create set the instance and the main activity view.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mTcpClient = TcpClient.getInstance();
         setContentView(R.layout.activity_main);
-
     }
 
+    // On button connect, create joystick view with onMoved
     public void buttonConnect(View view) {
 
-        String ip = ((TextView)findViewById(R.id.editIP)).getText().toString();
-
-        String port = ((TextView)findViewById(R.id.editPort)).getText().toString();
+        // Get the ip, port from activity view, and create connect task class.
+        String ip = ((TextView) findViewById(R.id.editIP)).getText().toString();
+        String port = ((TextView) findViewById(R.id.editPort)).getText().toString();
         ConnectTask taskServer = new ConnectTask();
+
+        // Execute connection task (async).
         taskServer.execute(ip, port, null);
+
+        // Create Joystick view object, and add listener to the movement.
         JoystickView joystickView = new JoystickView(this);
-        joystickView.setJoystickListener(new JoystickListener() {
-            @Override
-            public void OnMoved(int pan, int tilt) {
+        joystickView.setJoystickListener((pan, tilt) -> {
+            // Decouple between server update and joystick.
+            // Joystick used only as view.
+            try {
 
-                try {
-                    mTcpClient.sendMessage("set /controls/flight/aileron " +
-                            Integer.valueOf(pan).toString() + "set /controls/flight/elevator " +
-                            Integer.valueOf(tilt).toString() + "\r\n");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                // Send to server with the Flight-Gear protocol.
+                mTcpClient.sendMessage(
+                        "set /controls/flight/aileron " +
+                                Integer.valueOf(pan).toString() + "\r\n" +
+                                "set /controls/flight/elevator " +
+                                Integer.valueOf(tilt).toString() + "\r\n");
+
+                // If interrupted, stop client.
+            } catch (InterruptedException e) {
+                mTcpClient.stopClient();
+
+            } catch (Exception ignore) {
             }
-
-            @Override
-            public void OnReleased() { }
-
         });
         setContentView(joystickView);
     }
-
 }
 
 
