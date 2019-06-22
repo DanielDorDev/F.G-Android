@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -12,43 +13,43 @@ import android.view.View;
 public class JoystickView extends View {
 
     private Paint surfacePaint, handlePaint;
-    private double handleX, handleY, radiusRatio;
-    private int handleRadius, sensitivity, handleInnerBoundaries;
+    private double handleX, handleY;
+    private Point mid = new Point();
+    private int handleRadius, sensitivity, surfaceRadius;
     private JoystickListener listener;
 
     // Constructors for joystick view.
     public JoystickView(Context context) {
-        super (context);
+        super(context);
         initJoystickView();
     }
 
     public JoystickView(Context context, AttributeSet attrs) {
-        super (context, attrs);
+        super(context, attrs);
         initJoystickView();
     }
 
     public JoystickView(Context context, AttributeSet attrs,
                         int defStyle) {
-        super (context, attrs, defStyle);
+        super(context, attrs, defStyle);
         initJoystickView();
     }
 
     // Default init if no special attributes delivered.
     private void initJoystickView() {
-        setFocusable(true);
-
+        //setFocusable(true);
+        // Default style for surface and handle painting.
         surfacePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        surfacePaint.setColor(Color.GRAY);
+        surfacePaint.setColor(Color.DKGRAY);
         surfacePaint.setStrokeWidth(5);
         surfacePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         handlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        handlePaint.setColor(Color.DKGRAY);
+        handlePaint.setColor(Color.RED);
         handlePaint.setStrokeWidth(5);
         handlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
-        radiusRatio =  0.7;
-        sensitivity = 100;
+        sensitivity = 100; // Sensitivity of data (.2f).
     }
 
     // Set listener to joystick, in this exercise one is enough.
@@ -62,42 +63,45 @@ public class JoystickView extends View {
         // Here we make sure that we have a perfect circle
         int measuredWidth = measure(widthMeasureSpec);
         int measuredHeight = measure(heightMeasureSpec);
-        int d = Math.min(measuredWidth, measuredHeight);
 
-        handleRadius = (int) (d * 0.15);
-        handleInnerBoundaries = handleRadius;
+        // Set middle points after measure.
+        mid.x = measuredWidth / 2;
+        mid.y = measuredHeight / 2;
+        // Set radius multiply by ratio (percent of the screen).
+        surfaceRadius = Math.min(mid.x, mid.y);
+        surfaceRadius *= 0.7;
 
-        setMeasuredDimension(d, d);
+        // Handle radius size defined as 40% of the surface size.
+        handleRadius = (int) (surfaceRadius * 0.4);
+        setMeasuredDimension(measuredWidth, measuredHeight);
     }
 
+    // Default size.
     private int measure(int measureSpec) {
-        int result = 0;
-        int specMode = MeasureSpec.getMode(measureSpec);
-        int specSize = MeasureSpec.getSize(measureSpec);
-        if (specMode == MeasureSpec.UNSPECIFIED) {
-            // Return a default size of 200 if no bounds are specified.
-            result = 200;
-        } else {
-            // As you want to fill the available space
-            // always return the full available bounds.
-            result = specSize;
-        }
-        return result;
+        return MeasureSpec.getMode(measureSpec) ==
+                MeasureSpec.UNSPECIFIED ? 200 : MeasureSpec.getSize(measureSpec);
+    }
+
+    // Check if movement is inside circle.
+    Boolean insideCircle(float x, float y) {
+        double distance = Math.sqrt((mid.x - x) * (mid.x - x) + (mid.y - y)
+                * (mid.y - y));
+        return distance <= surfaceRadius;
+    }
+
+    // Find from middle to point.
+    public float getAngle(float x, float y) {
+        float angle = (float) Math.toDegrees(Math.atan2(y - mid.y, x - mid.x));
+        return angle < 0 ? angle + 360 : angle;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-
-        // Calculate middle, set radius (restricted to radius ratio)
-        int middleX = getMeasuredWidth() / 2;
-        int middleY = getMeasuredHeight() / 2;
-        int radius = Double.valueOf(Math.min(middleX, middleY) * radiusRatio).intValue();
-
         // Draw the surface
-        canvas.drawCircle(middleX, middleY, radius , surfacePaint);
+        canvas.drawCircle(mid.x, mid.y, surfaceRadius, surfacePaint);
 
         // Draw the handle
-        canvas.drawCircle((int) handleX + middleX, (int) handleY + middleY,
+        canvas.drawCircle((int) handleX + mid.x, (int) handleY + mid.y,
                 handleRadius, handlePaint);
         canvas.save();
     }
@@ -105,38 +109,37 @@ public class JoystickView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int userAction = event.getAction();
-        if (userAction == MotionEvent.ACTION_MOVE) {
-            int px = getMeasuredWidth() / 2;
-            int py = getMeasuredHeight() / 2;
-            int radius = Math.min(px, py) - handleInnerBoundaries;
 
-            handleX = Math.max(Math.min(event.getX() - px, radius), - radius);
-            handleY = Math.max(Math.min((event.getY() - py), radius), - radius);
+        if (userAction == MotionEvent.ACTION_MOVE) {
+
+            if (insideCircle(event.getX(), event.getY())) {
+                handleX = event.getX() - mid.x;
+                handleY = event.getY() - mid.y;
+            } else {
+                float angle = getAngle(event.getX(), event.getY());
+                handleX = (float) (surfaceRadius * Math.cos(angle * Math.PI / 180F));
+                handleY = (float) (surfaceRadius * Math.sin(angle * Math.PI / 180F));
+            }
 
             if (listener != null) {
-                listener.OnMoved(Math.ceil((handleX / radius) * sensitivity) / sensitivity,
-                        Math.ceil((handleY / radius) * sensitivity)  / sensitivity);
+                listener.OnMoved(Math.ceil((handleX / surfaceRadius) * sensitivity) / sensitivity,
+                        Math.ceil((handleY / surfaceRadius) * sensitivity) / sensitivity);
             }
             invalidate();
         } else if (userAction == MotionEvent.ACTION_UP) {
-            returnHandleToCenter();
+            Handler handler = new Handler();
+            int frameRate = 5;
+            final double intervalsX = (0 - handleX) / frameRate;
+            final double intervalsY = (0 - handleY) / frameRate;
+
+            for (int i = 0; i < frameRate; i++) {
+                handler.postDelayed(() -> {
+                    handleX += intervalsX;
+                    handleY += intervalsY;
+                    invalidate();
+                }, i * 40);
+            }
         }
         return true;
-    }
-
-    private void returnHandleToCenter() {
-
-        Handler handler = new Handler();
-        int numberOfFrames = 5;
-        final double intervalsX = (0 - handleX) / numberOfFrames;
-        final double intervalsY = (0 - handleY) / numberOfFrames;
-
-        for (int i = 0; i < numberOfFrames; i++) {
-            handler.postDelayed(() -> {
-                handleX += intervalsX;
-                handleY += intervalsY;
-                invalidate();
-            }, i * 40);
-        }
     }
 }
