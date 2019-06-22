@@ -6,3 +6,9 @@ Android controller for airplane📲
 <p>Two days quest to create controller for simulator.</p>
 <p>Connect to simulator and control aileron\elevator.</p>
 
+<img width="100px" src="empty.png" />
+
+Drag |  Default
+:-------------------------:|:-------------------------:
+![](joystick_use.png)|![](joystick.png)
+
