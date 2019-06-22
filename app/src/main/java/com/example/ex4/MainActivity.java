@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Create Joystick view object, and add listener to the movement.
         JoystickView joystickView = new JoystickView(this);
-        joystickView.setJoystickListener((pan, tilt) -> {
+        joystickView.setJoystickListener((aileron, elevator) -> {
             // Decouple between server update and joystick.
             // Joystick used only as view.
             try {
@@ -40,9 +40,9 @@ public class MainActivity extends AppCompatActivity {
                 // Send to server with the Flight-Gear protocol.
                 mTcpClient.sendMessage(
                         "set /controls/flight/aileron " +
-                                Integer.valueOf(pan).toString() + "\r\n" +
+                                Double.valueOf(aileron).toString() + "\r\n" +
                                 "set /controls/flight/elevator " +
-                                Integer.valueOf(tilt).toString() + "\r\n");
+                                Double.valueOf(elevator).toString() + "\r\n");
 
                 // If interrupted, stop client.
             } catch (InterruptedException e) {

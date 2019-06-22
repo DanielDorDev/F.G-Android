@@ -64,22 +64,25 @@ class TcpClient {
     void startClient(String server_IP, String server_Port) {
         try {
 
-            InetAddress serverAddr = InetAddress.getByName(server_IP);
-            Socket socket = new Socket(serverAddr, Integer.valueOf(server_Port));
-
+            // Create netAddress, create connection, use the connection to create buffer out.
+            InetAddress serverAddress = InetAddress.getByName(server_IP);
+            Socket socket = new Socket(serverAddress, Integer.valueOf(server_Port));
             mBufferOut = new PrintWriter(new BufferedWriter(
                     new OutputStreamWriter(socket.getOutputStream())), true);
 
-
             stopClient = false;
 
-            while (!stopClient || !dispatchQueue.isEmpty()) {
-                try {
-                    dispatchQueue.take().run();
-                } catch (InterruptedException ignored) {
-                }
-            }
+            // Run dispatch queue.
+            new Thread(() -> {
 
+                while (!stopClient || !dispatchQueue.isEmpty()) {
+                    try {
+                        dispatchQueue.take().run();
+                    } catch (Exception ignored) {}
+                }
+            }).start();
+
+            // If failed opening, stopClient.
         } catch (Exception e) {
             stopClient = true;
         }

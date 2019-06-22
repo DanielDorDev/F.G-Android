@@ -11,14 +11,10 @@ import android.view.View;
 
 public class JoystickView extends View {
 
-    private Paint circlePaint;
-    private Paint handlePaint;
-    private double touchX, touchY;
-    private int innerPadding;
-    private int handleRadius;
-    private int handleInnerBoundaries;
+    private Paint surfacePaint, handlePaint;
+    private double handleX, handleY;
+    private int innerPadding, handleRadius, sensitivity, handleInnerBoundaries;
     private JoystickListener listener;
-    private int sensitivity;
 
     // Constructors for joystick view.
     public JoystickView(Context context) {
@@ -37,22 +33,22 @@ public class JoystickView extends View {
         initJoystickView();
     }
 
-
+    // Default init if no special attributes delivered.
     private void initJoystickView() {
         setFocusable(true);
 
-        circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        circlePaint.setColor(Color.GRAY);
-        circlePaint.setStrokeWidth(1);
-        circlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        surfacePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        surfacePaint.setColor(Color.GRAY);
+        surfacePaint.setStrokeWidth(2);
+        surfacePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         handlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         handlePaint.setColor(Color.DKGRAY);
-        handlePaint.setStrokeWidth(1);
+        handlePaint.setStrokeWidth(2);
         handlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
-        innerPadding = 10;
-        sensitivity = 10;
+        innerPadding = 5;
+        sensitivity = 100;
     }
 
     // Set listener to joystick, in this exercise one is enough.
@@ -68,7 +64,7 @@ public class JoystickView extends View {
         int measuredHeight = measure(heightMeasureSpec);
         int d = Math.min(measuredWidth, measuredHeight);
 
-        handleRadius = (int) (d * 0.25);
+        handleRadius = (int) (d * 0.15);
         handleInnerBoundaries = handleRadius;
 
         setMeasuredDimension(d, d);
@@ -96,10 +92,10 @@ public class JoystickView extends View {
         int radius = Math.min(px, py);
 
         // Draw the background
-        canvas.drawCircle(px, py, radius - innerPadding, circlePaint);
+        canvas.drawCircle(px, py, radius - innerPadding, surfacePaint);
 
         // Draw the handle
-        canvas.drawCircle((int) touchX + px, (int) touchY + py,
+        canvas.drawCircle((int) handleX + px, (int) handleY + py,
                 handleRadius, handlePaint);
 
         canvas.save();
@@ -107,29 +103,22 @@ public class JoystickView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        int actionType = event.getAction();
-        if (actionType == MotionEvent.ACTION_MOVE) {
+        int userAction = event.getAction();
+        if (userAction == MotionEvent.ACTION_MOVE) {
             int px = getMeasuredWidth() / 2;
             int py = getMeasuredHeight() / 2;
             int radius = Math.min(px, py) - handleInnerBoundaries;
 
-            touchX = (event.getX() - px);
-            touchX = Math.max(Math.min(touchX, radius), -radius);
+            handleX = Math.max(Math.min(event.getX() - px, radius), - radius);
+            handleY = Math.max(Math.min((event.getY() - py), radius), - radius);
 
-            touchY = (event.getY() - py);
-            touchY = Math.max(Math.min(touchY, radius), -radius);
-
-
-            // Pressure
             if (listener != null) {
-                listener.OnMoved((int) (touchX / radius * sensitivity),
-                        (int) (touchY / radius * sensitivity));
+                listener.OnMoved(Math.ceil((handleX / radius) * sensitivity) / sensitivity,
+                        Math.ceil((handleY / radius) * sensitivity)  / sensitivity);
             }
-
             invalidate();
-        } else if (actionType == MotionEvent.ACTION_UP) {
+        } else if (userAction == MotionEvent.ACTION_UP) {
             returnHandleToCenter();
-
         }
         return true;
     }
@@ -138,13 +127,13 @@ public class JoystickView extends View {
 
         Handler handler = new Handler();
         int numberOfFrames = 5;
-        final double intervalsX = (0 - touchX) / numberOfFrames;
-        final double intervalsY = (0 - touchY) / numberOfFrames;
+        final double intervalsX = (0 - handleX) / numberOfFrames;
+        final double intervalsY = (0 - handleY) / numberOfFrames;
 
         for (int i = 0; i < numberOfFrames; i++) {
             handler.postDelayed(() -> {
-                touchX += intervalsX;
-                touchY += intervalsY;
+                handleX += intervalsX;
+                handleY += intervalsY;
                 invalidate();
             }, i * 40);
         }
