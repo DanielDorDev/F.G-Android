@@ -34,6 +34,13 @@ public class MainActivity extends AppCompatActivity {
         buttonEmptyFields();
     }
 
+    // On Destroy close the server connection.
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mTcpClient.stopClient();
+    }
+
     // On button connect, create joystick view with onMoved
     public void buttonConnect(View view) {
 
