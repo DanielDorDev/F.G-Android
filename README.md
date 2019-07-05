@@ -1,9 +1,9 @@
 # F.G-Android
-Android controller for airplane📲
+Android app for controlling an airplane📲
 
 
 <p>First experience with android development.</p>
-<p>In two days i learned a lot about android SDK, activites, custom view, resources, refreshed my java skills, created tangible appliaction installed on my phone and enjoyed adding extensions beyond the requirements.</p>
+<p>A two days challange to develop android app from scratch, at this time i learned how to use android SDK enviroment, activites, custom view, resources, refreshed my java skills, and enjoyed creating tangible appliaction installed on my phone.</p>
 
 <img width="100px" src="empty.png" />
 
